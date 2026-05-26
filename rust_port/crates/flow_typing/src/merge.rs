@@ -1388,7 +1388,7 @@ fn check_haste_provider_conflict<'cx>(
             };
             match cx.find_require(&specifier) {
                 // There is no corresponding implementation file. This is allowed.
-                ResolvedRequire::MissingModule => {}
+                ResolvedRequire::MissingModule(..) => {}
                 ResolvedRequire::UncheckedModule(platform_specific_provider_module_loc) => {
                     // If the corresponding platform specific file is untyped, then we assume it satisfies
                     // the common interface. However, we do need to make sure that it's not another
@@ -1482,7 +1482,7 @@ fn check_haste_provider_conflict<'cx>(
                     allow_implicit_platform_specific_import: false,
                 };
                 match cx.find_require(&specifier) {
-                    ResolvedRequire::MissingModule => None,
+                    ResolvedRequire::MissingModule(..) => None,
                     ResolvedRequire::UncheckedModule(loc) => Some(loc),
                     ResolvedRequire::TypedModule(f) => match f(cx, cx) {
                         Ok(m) => Some(m.module_reason.loc().dupe()),
@@ -1511,7 +1511,7 @@ fn validate_strict_boundary_import_pattern_opt_outs<'cx>(
      -> Result<(), flow_utils_concurrency::job_error::JobError> {
         let get_exports_t = |specifier: &FlowImportSpecifier| -> Option<Type> {
             match cx.find_require(specifier) {
-                ResolvedRequire::MissingModule => None,
+                ResolvedRequire::MissingModule(..) => None,
                 ResolvedRequire::UncheckedModule(_) => None,
                 ResolvedRequire::TypedModule(f) => match f(cx, cx) {
                     Err(_) => None,
@@ -1663,7 +1663,7 @@ fn check_multiplatform_conformance<'cx>(
             match cx.find_require(&specifier) {
                 // It's ok if a platform speicific implementation file doesn't have an interface.
                 // It just makes the module non-importable without platform extension.
-                ResolvedRequire::MissingModule | ResolvedRequire::UncheckedModule(_) => {}
+                ResolvedRequire::MissingModule(..) | ResolvedRequire::UncheckedModule(_) => {}
                 ResolvedRequire::TypedModule(interface_module_f) => {
                     let get_exports_t = |is_common_interface_module: bool,
                                          reason: Reason,
@@ -1752,7 +1752,7 @@ fn check_multiplatform_conformance<'cx>(
                         {
                             ResolvedRequire::TypedModule(_)
                             | ResolvedRequire::UncheckedModule(_) => true,
-                            ResolvedRequire::MissingModule => false,
+                            ResolvedRequire::MissingModule(..) => false,
                         }
                     };
                     if !cx.has_explicit_supports_platform()
@@ -2553,7 +2553,7 @@ pub fn mk_builtins<'cx>(
                             })
                                 as Box<dyn FnOnce() -> Rc<ALocTable>>))
                         },
-                        Rc::new(move |_cx: &Context, _| ResolvedRequire::MissingModule),
+                        Rc::new(move |_cx: &Context, _| ResolvedRequire::MissingModule(None)),
                         Rc::new(move |_cx: &Context| -> Builtins<'_, Context<'_>> {
                             builtins_ref_clone.replace(Builtins::empty())
                         }),

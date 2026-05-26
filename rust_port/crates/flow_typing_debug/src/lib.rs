@@ -2247,16 +2247,22 @@ pub fn dump_error_message(cx: &Context, err: &ErrorMessage<ALoc>) -> String {
             loc,
             name,
             potential_generator,
+            mapped_name,
         }) => {
             let gen_str = match potential_generator {
                 Some(g) => format!("Some({})", g),
                 None => "None".to_string(),
             };
+            let mapped_str = match mapped_name {
+                Some(m) => format!("Some({})", m),
+                None => "None".to_string(),
+            };
             format!(
-                "EBuiltinModuleLookupFailed(Box::new(EBuiltinModuleLookupFailedData {{ loc = {}; name = {:?}; potential_generator = {} }}))",
+                "EBuiltinModuleLookupFailed(Box::new(EBuiltinModuleLookupFailedData {{ loc = {}; name = {:?}; potential_generator = {}; mapped_name = {} }}))",
                 string_of_aloc(None, loc),
                 name,
-                gen_str
+                gen_str,
+                mapped_str
             )
         }
         ErrorMessage::EExpectedModuleLookupFailed(box EExpectedModuleLookupFailedData {

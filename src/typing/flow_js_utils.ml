@@ -862,7 +862,7 @@ let emit_cacheable_env_error cx loc err =
   in
   add_output cx err
 
-let lookup_builtin_module_error cx module_name loc =
+let lookup_builtin_module_error cx module_name loc mapped_name =
   let module_name = Flow_import_specifier.display_userland module_name in
   let potential_generator =
     Context.missing_module_generators cx
@@ -871,7 +871,7 @@ let lookup_builtin_module_error cx module_name loc =
   in
   add_output
     cx
-    (Error_message.EBuiltinModuleLookupFailed { loc; potential_generator; name = module_name });
+    (Error_message.EBuiltinModuleLookupFailed { loc; potential_generator; name = module_name; mapped_name });
   AnyT.error_of_kind UnresolvedName (mk_reason RAnyImplicit loc)
 
 let lookup_builtin_name_error name loc =
@@ -2426,7 +2426,7 @@ end = struct
     if Context.in_declare_module cx then
       match Context.builtin_module_opt cx mref with
       | Some (_, (lazy m)) -> Ok m
-      | None -> Error (lookup_builtin_module_error cx mref loc)
+      | None -> Error (lookup_builtin_module_error cx mref loc None)
     else
       let module_type_or_any =
         match Context.find_require cx (Flow_import_specifier.Userland mref) with
@@ -2443,7 +2443,7 @@ end = struct
                 add_output cx message
           );
           Error (AnyT.why Untyped (mk_reason (RModule mref) module_def_loc))
-        | Context.MissingModule -> Error (lookup_builtin_module_error cx mref loc)
+        | Context.MissingModule mapped_name -> Error (lookup_builtin_module_error cx mref loc mapped_name)
       in
       let need_platform_validation =
         (perform_platform_validation

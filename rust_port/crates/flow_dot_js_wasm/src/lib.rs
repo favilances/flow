@@ -323,7 +323,7 @@ fn prepare_file(
                     move || Rc::new(ALocTable::empty(file_key))
                 })
                     as Box<dyn FnOnce() -> Rc<ALocTable>>)),
-                Rc::new(|_, _| ResolvedRequire::MissingModule),
+                Rc::new(|_, _| ResolvedRequire::MissingModule(None)),
                 Rc::new(|_| flow_typing_builtins::Builtins::empty()),
                 CheckBudget::new(None),
             ),
@@ -349,11 +349,11 @@ fn prepare_file(
                 FlowImportSpecifier::Userland(userland) => {
                     match typed_builtin_module_opt(cx, userland) {
                         Some(typed) => ResolvedRequire::TypedModule(typed),
-                        None => ResolvedRequire::MissingModule,
+                        None => ResolvedRequire::MissingModule(None),
                     }
                 }
                 FlowImportSpecifier::HasteImportWithSpecifiedNamespace { .. } => {
-                    ResolvedRequire::MissingModule
+                    ResolvedRequire::MissingModule(None)
                 }
             },
         );

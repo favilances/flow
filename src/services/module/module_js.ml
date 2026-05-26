@@ -750,13 +750,12 @@ module Node = struct
        with
       | Some m -> Ok m
       | None ->
-        (* For the Node module system, we always use the original unmapped name in
-         * error messages, so we never need to store a mapped name.
-         *
-         * TODO: This means that name mappers can not force a mapped module name
-         * to resolve to a libdef, since we try to resolve to libdef modules
-         * during check in the `Error _` case. *)
-        Error None)
+        let mapped_name =
+          match Nel.tl candidates with
+          | [] -> None
+          | _ -> Some (Flow_import_specifier.userland_specifier (Nel.hd candidates))
+        in
+        Error mapped_name)
     | Flow_import_specifier.HasteImportWithSpecifiedNamespace _ ->
       (* We should never find Haste modules under Node. *)
       Error None
