@@ -289,7 +289,7 @@ type typing_mode =
 type resolved_require =
   | TypedModule of (unit -> (Type.moduletype, Type.t) result)
   | UncheckedModule of ALoc.t
-  | MissingModule
+  | MissingModule of string option
 
 type t = {
   ccx: component_t;

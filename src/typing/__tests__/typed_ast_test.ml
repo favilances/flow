@@ -121,7 +121,7 @@ let before_and_after_stmts file_name =
   in
   let cx =
     let aloc_table = lazy (ALoc.empty_table file_key) in
-    let resolve_require _ = Context.MissingModule in
+    let resolve_require _ = Context.MissingModule None in
     let ccx = Context.make_ccx () in
     Context.make ccx metadata file_key aloc_table resolve_require mk_builtins
   in

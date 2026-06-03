@@ -1175,7 +1175,7 @@ pub fn merge_exports<'cx>(
         let f: FromNs<'cx> = match resolved_require {
             ResolvedRequire::TypedModule(f) => Some(f),
             ResolvedRequire::UncheckedModule(_) => None,
-            ResolvedRequire::MissingModule => None,
+            ResolvedRequire::MissingModule(..) => None,
         };
         (loc.dupe(), f)
     }
@@ -2178,6 +2178,7 @@ fn merge_annot<'cx>(
                         cx,
                         &mref.dupe().into_inner(),
                         loc.dupe(),
+                        None,
                     )
                     .unwrap();
                     ResolvedRequire::TypedModule(Rc::new(
@@ -5789,7 +5790,7 @@ pub fn merge_builtins<'cx>(
             > {
                 match dependencies_map.get(specifier.as_str()) {
                     None => Rc::new(flow_lazy::Lazy::new(Box::new(|_cx: &Context| {
-                        ResolvedRequire::MissingModule
+                        ResolvedRequire::MissingModule(None)
                     }))),
                     Some(lazy_module) => {
                         let lazy_module = lazy_module.dupe();

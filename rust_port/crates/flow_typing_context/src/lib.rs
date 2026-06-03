@@ -549,7 +549,7 @@ pub enum ResolvedRequire<'cx> {
     /// dst_cx is the destination context for error reporting.
     TypedModule(Rc<dyn Fn(&Context<'cx>, &Context<'cx>) -> Result<ModuleType, Type> + 'cx>),
     UncheckedModule(ALoc),
-    MissingModule,
+    MissingModule(Option<FlowSmolStr>),
 }
 
 struct ContextInner<'cx> {

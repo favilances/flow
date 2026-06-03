@@ -1735,6 +1735,7 @@ pub fn lookup_builtin_module_error<'cx>(
     cx: &Context<'cx>,
     module_name: &flow_data_structure_wrapper::smol_str::FlowSmolStr,
     loc: ALoc,
+    mapped_name: Option<flow_data_structure_wrapper::smol_str::FlowSmolStr>,
 ) -> Result<Type, FlowJsException> {
     use flow_typing_errors::error_message::ErrorMessage;
     use flow_typing_type::type_::AnySource;
@@ -1752,6 +1753,7 @@ pub fn lookup_builtin_module_error<'cx>(
             loc: loc.dupe(),
             potential_generator,
             name: module_name_str,
+            mapped_name,
         })),
     )?;
 
@@ -4711,7 +4713,7 @@ pub mod import_export_utils {
                 Some((_reason, m)) => Ok(Ok(m.get_forced(cx).dupe())),
                 None => {
                     let err_t =
-                        lookup_builtin_module_error(cx, &FlowSmolStr::new(mref.as_str()), loc)?;
+                        lookup_builtin_module_error(cx, &FlowSmolStr::new(mref.as_str()), loc, None)?;
                     Ok(Err(err_t))
                 }
             }
@@ -4743,10 +4745,11 @@ pub mod import_export_utils {
                             mk_reason(VirtualReasonDesc::RModule(mref.dupe()), module_def_loc),
                         ))
                     }
-                    ResolvedRequire::MissingModule => Err(lookup_builtin_module_error(
+                    ResolvedRequire::MissingModule(mapped_name) => Err(lookup_builtin_module_error(
                         cx,
                         &FlowSmolStr::new(mref.as_str()),
                         loc.dupe(),
+                        mapped_name,
                     )?),
                 };
             let need_platform_validation = perform_platform_validation

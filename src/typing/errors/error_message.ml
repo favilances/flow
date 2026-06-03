@@ -349,6 +349,7 @@ and 'loc t' =
       loc: 'loc;
       name: string;
       potential_generator: string option;
+      mapped_name: string option;
     }
   | EExpectedModuleLookupFailed of {
       loc: 'loc;
@@ -1306,8 +1307,8 @@ let rec map_loc_of_error_message (f : 'a -> 'b) : 'a t' -> 'b t' =
         use_op = map_use_op use_op;
       }
   | EBuiltinNameLookupFailed { loc; name } -> EBuiltinNameLookupFailed { loc = f loc; name }
-  | EBuiltinModuleLookupFailed { loc; name; potential_generator } ->
-    EBuiltinModuleLookupFailed { loc = f loc; name; potential_generator }
+  | EBuiltinModuleLookupFailed { loc; name; potential_generator; mapped_name } ->
+    EBuiltinModuleLookupFailed { loc = f loc; name; potential_generator; mapped_name }
   | EExpectedModuleLookupFailed { loc; name; expected_module_purpose } ->
     EExpectedModuleLookupFailed { loc = f loc; name; expected_module_purpose }
   | EPrivateLookupFailed ((r1, r2), x, op) ->
@@ -3107,8 +3108,8 @@ let friendly_message_of_msg = function
     Normal
       (MessageCannotUseTypeDueToPolarityMismatch { reason_targ; expected_polarity; actual_polarity })
   | EBuiltinNameLookupFailed { loc = _; name } -> Normal (MessageCannotResolveBuiltinName name)
-  | EBuiltinModuleLookupFailed { loc = _; name; potential_generator } ->
-    Normal (MessageCannotResolveBuiltinModule { name; potential_generator })
+  | EBuiltinModuleLookupFailed { loc = _; name; potential_generator; mapped_name } ->
+    Normal (MessageCannotResolveBuiltinModule { name; potential_generator; mapped_name })
   | EExpectedModuleLookupFailed { loc = _; name; expected_module_purpose } ->
     Normal (MessageCannotResolveExpectedModule { name; expected_module_purpose })
   | EPrivateLookupFailed (reasons, x, use_op) ->

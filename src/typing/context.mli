@@ -154,7 +154,7 @@ val show_typing_mode : typing_mode Nel.t -> string
 type resolved_require =
   | TypedModule of (unit -> (Type.moduletype, Type.t) result)
   | UncheckedModule of ALoc.t
-  | MissingModule
+  | MissingModule of string option
 
 type resolve_require = Flow_import_specifier.t -> resolved_require
 

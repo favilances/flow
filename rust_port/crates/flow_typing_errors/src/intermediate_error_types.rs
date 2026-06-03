@@ -1249,6 +1249,7 @@ pub struct MessageCannotInstantiateObjectUtilTypeWithEnumData<L: Dupe> {
 pub struct MessageCannotResolveBuiltinModuleData {
     pub name: FlowSmolStr,
     pub potential_generator: Option<FlowSmolStr>,
+    pub mapped_name: Option<FlowSmolStr>,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]

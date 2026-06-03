@@ -718,6 +718,7 @@ type 'loc message =
   | MessageCannotResolveBuiltinModule of {
       name: string;
       potential_generator: string option;
+      mapped_name: string option;
     }
   | MessageCannotResolveExpectedModule of {
       name: string;

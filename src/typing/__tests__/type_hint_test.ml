@@ -272,8 +272,8 @@ let mk_cx ~verbose () =
           (fun () ->
             Type.Constraint.ForcingState.of_lazy_module m
             |> Type.Constraint.ForcingState.force ~on_error:(fun r -> Error (Type.AnyT.error r)))
-      | None -> Context.MissingModule)
-    | Flow_import_specifier.HasteImportWithSpecifiedNamespace _ -> Context.MissingModule
+      | None -> Context.MissingModule None)
+    | Flow_import_specifier.HasteImportWithSpecifiedNamespace _ -> Context.MissingModule None
   in
   let cx =
     Context.make ccx metadata dummy_filename aloc_table resolve_require (fun _ -> !builtins_ref)

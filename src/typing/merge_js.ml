@@ -896,7 +896,7 @@ let check_haste_provider_conflict cx tast =
                    }
                 )
             with
-            | Context.MissingModule ->
+            | Context.MissingModule _ ->
               (* There is no corresponding implementation file. This is allowed. *)
               ()
             | Context.UncheckedModule platform_specific_provider_module_loc ->
@@ -972,7 +972,7 @@ let check_haste_provider_conflict cx tast =
                      }
                   )
               with
-              | Context.MissingModule -> None
+              | Context.MissingModule _ -> None
               | Context.UncheckedModule loc -> Some loc
               | Context.TypedModule f ->
                 (match f () with
@@ -993,7 +993,7 @@ let validate_strict_boundary_import_pattern_opt_outs cx =
   let validate (error_loc, import_specifier, projects) =
     let get_exports_t specifier =
       match Context.find_require cx specifier with
-      | Context.MissingModule -> None
+      | Context.MissingModule _ -> None
       | Context.UncheckedModule _ -> None
       | Context.TypedModule f ->
         (match f () with
@@ -1102,7 +1102,7 @@ let check_multiplatform_conformance cx ast tast =
          cx
          (Flow_import_specifier.userland_specifier imported_interface_module_name)
      with
-    | Context.MissingModule
+    | Context.MissingModule _
     | Context.UncheckedModule _ ->
       (* It's ok if a platform speicific implementation file doesn't have an interface.
        * It just makes the module non-importable without platform extension. *)
@@ -1170,7 +1170,7 @@ let check_multiplatform_conformance cx ast tast =
         | Context.TypedModule _
         | Context.UncheckedModule _ ->
           true
-        | Context.MissingModule -> false
+        | Context.MissingModule _ -> false
       in
       if
         (not (Context.has_explicit_supports_platform cx))
@@ -1725,7 +1725,7 @@ let mk_builtins metadata master_cx =
           { metadata with Context.checked = false }
           builtin_leader_file_key
           (lazy (ALoc.empty_table builtin_leader_file_key))
-          (fun _ -> Context.MissingModule)
+          (fun _ -> Context.MissingModule None)
           (fun _ -> !builtins_ref)
       in
       let (values, types, modules) =

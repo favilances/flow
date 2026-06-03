@@ -1235,6 +1235,7 @@ pub struct EBuiltinModuleLookupFailedData<L: Dupe + PartialOrd + Ord + PartialEq
     pub loc: L,
     pub name: FlowSmolStr,
     pub potential_generator: Option<FlowSmolStr>,
+    pub mapped_name: Option<FlowSmolStr>,
 }
 
 #[derive(
@@ -3665,10 +3666,12 @@ impl<L: Dupe + PartialEq + Eq + PartialOrd + Ord> ErrorMessage<L> {
                 loc,
                 name,
                 potential_generator,
+                mapped_name,
             }) => EBuiltinModuleLookupFailed(Box::new(EBuiltinModuleLookupFailedData {
                 loc: f(loc),
                 name,
                 potential_generator,
+                mapped_name,
             })),
 
             EExpectedModuleLookupFailed(box EExpectedModuleLookupFailedData {
@@ -7674,11 +7677,13 @@ impl<L: Dupe + PartialEq + Eq + PartialOrd + Ord> ErrorMessage<L> {
             ErrorMessage::EBuiltinModuleLookupFailed(box EBuiltinModuleLookupFailedData {
                 name,
                 potential_generator,
+                mapped_name,
                 ..
             }) => Normal(Message::MessageCannotResolveBuiltinModule(Box::new(
                 MessageCannotResolveBuiltinModuleData {
                     name,
                     potential_generator,
+                    mapped_name,
                 },
             ))),
 

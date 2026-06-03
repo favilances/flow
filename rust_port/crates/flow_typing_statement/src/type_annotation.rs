@@ -2274,10 +2274,11 @@ fn convert_inner<'a>(
                                     {
                                         Some((_, m)) => Ok(m.get_forced(cx).dupe()),
                                         None => Err(match flow_js_utils::lookup_builtin_module_error(
-                                            cx,
-                                            value,
-                                            loc.dupe(),
-                                        ) {
+                                             cx,
+                                             value,
+                                             loc.dupe(),
+                                             None,
+                                         ) {
                                             Ok(v) => v,
                                             Err(flow_typing_flow_common::flow_js_utils::FlowJsException::WorkerCanceled(c)) => return Err(flow_utils_concurrency::job_error::JobError::Canceled(c)),
                                             Err(flow_typing_flow_common::flow_js_utils::FlowJsException::TimedOut(t)) => return Err(flow_utils_concurrency::job_error::JobError::TimedOut(t)),

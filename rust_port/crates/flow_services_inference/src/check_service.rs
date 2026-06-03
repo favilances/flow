@@ -113,17 +113,18 @@ fn typed_builtin_module_opt<'cx>(
 fn unknown_module_t<'cx>(
     cx: &Context<'cx>,
     module_name: &FlowImportSpecifier,
+    mapped_name: Option<FlowSmolStr>,
 ) -> ResolvedRequire<'cx> {
     match module_name {
         FlowImportSpecifier::Userland(user_land_module_name) => {
             match typed_builtin_module_opt(cx, user_land_module_name) {
                 Some(typed) => ResolvedRequire::TypedModule(typed),
-                None => ResolvedRequire::MissingModule,
+                None => ResolvedRequire::MissingModule(mapped_name),
             }
         }
         FlowImportSpecifier::HasteImportWithSpecifiedNamespace { .. } => {
             // We should not lookup builtins modules for synthetic imports.
-            ResolvedRequire::MissingModule
+            ResolvedRequire::MissingModule(mapped_name)
         }
     }
 }
@@ -186,10 +187,13 @@ pub fn mk_check_file(
         mk_builtins_fn: &Rc<dyn Fn(&Context<'static>) -> Builtins<'static, Context<'static>>>,
         cache: &Rc<RefCell<CheckCache<'static>>>,
     ) -> ResolvedRequire<'static> {
-        match resolved_module {
             Err(mapped_name) => {
                 let m = mapped_name.as_ref().unwrap_or(mref);
-                unknown_module_t(cx, m)
+                let mapped_name_str = mapped_name.as_ref().map(|spec| match spec {
+                    FlowImportSpecifier::Userland(u) => FlowSmolStr::new(u.as_str()),
+                    FlowImportSpecifier::HasteImportWithSpecifiedNamespace { name, .. } => name.dupe(),
+                });
+                unknown_module_t(cx, m, mapped_name_str)
             }
             Ok(m) => match shared_mem.get_provider(&m) {
                 None => {
@@ -197,6 +201,7 @@ pub fn mk_check_file(
                     unknown_module_t(
                         cx,
                         &FlowImportSpecifier::userland(FlowSmolStr::from(modulename.as_str())),
+                        None,
                     )
                 }
                 Some(dep_file_key) => match dep_file_key.inner() {

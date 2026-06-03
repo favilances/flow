@@ -43,15 +43,15 @@ let typed_builtin_module_opt cx builtin_module_name =
       )
   | None -> None
 
-let unknown_module_t cx module_name =
+let unknown_module_t cx module_name mapped_name =
   match module_name with
   | Flow_import_specifier.Userland user_land_module_name ->
     (match typed_builtin_module_opt cx user_land_module_name with
     | Some typed -> Context.TypedModule typed
-    | None -> Context.MissingModule)
+    | None -> Context.MissingModule mapped_name)
   | Flow_import_specifier.HasteImportWithSpecifiedNamespace _ ->
     (* We should not lookup builtins modules for synthetic imports. *)
-    Context.MissingModule
+    Context.MissingModule mapped_name
 
 let unchecked_module_t cx file_key mref =
   let loc = ALoc.of_loc Loc.{ none with source = Some file_key } in
@@ -97,7 +97,7 @@ let mk_check_file ~reader ~options ~master_cx ~cache () =
   let rec dep_module_t cx mref = function
     | Error mapped_name ->
       let m = Option.value mapped_name ~default:mref in
-      unknown_module_t cx m
+      unknown_module_t cx m (Option.map Flow_import_specifier.unwrap_userland mapped_name)
     | Ok m ->
       (match Parsing_heaps.Reader_dispatcher.get_provider ~reader m with
       | None ->
@@ -106,6 +106,7 @@ let mk_check_file ~reader ~options ~master_cx ~cache () =
           (Flow_import_specifier.userland_specifier
              (Parsing_heaps.read_dependency m |> Modulename.to_string)
           )
+          None
       | Some dep_addr ->
         (match Parsing_heaps.read_file_key dep_addr with
         | File_key.ResourceFile _ as file_key ->

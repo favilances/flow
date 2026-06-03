@@ -2908,7 +2908,7 @@ let to_printable_error :
     | MessageCannotReferenceTypeGuardParameter { type_guard_reason; binding_reason } ->
       [text "A "; ref type_guard_reason; text " cannot reference "; ref binding_reason; text "."]
     | MessageCannotResolveBuiltinName name -> [text "Cannot resolve name "; code name; text "."]
-    | MessageCannotResolveBuiltinModule { name; potential_generator } ->
+    | MessageCannotResolveBuiltinModule { name; potential_generator; mapped_name } ->
       let potential_generator_features =
         match potential_generator with
         | Some generator ->
@@ -2917,7 +2917,15 @@ let to_printable_error :
           ]
         | None -> []
       in
-      [text "Cannot resolve module "; code name; text "."] @ potential_generator_features
+      let mapped_name_explanation =
+        match mapped_name with
+        | Some mapped ->
+          [text " (after it was remapped to "; code mapped; text ", check your .flowconfig mapper paths exist)"]
+        | None -> []
+      in
+      [text "Cannot resolve module "; code name; text "."]
+      @ mapped_name_explanation
+      @ potential_generator_features
     | MessageCannotResolveExpectedModule { name; expected_module_purpose } ->
       let explanation =
         match expected_module_purpose with
